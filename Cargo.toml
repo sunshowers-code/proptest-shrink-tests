@@ -1,0 +1,19 @@
+[package]
+name = "proptest-shrink-tests"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+camino = "1.1.9"
+clap = { version = "4.5.30", features = ["derive"] }
+color-eyre = "0.6.3"
+proptest = "1.6.0"
+rand = "0.9.0"
+test-strategy = "0.4.0"
+
+[build-dependencies]
+camino = "1.1.9"
+
+[profile.dev]
+opt-level = 1

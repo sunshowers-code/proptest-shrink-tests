@@ -1,0 +1,47 @@
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+name: CI
+env:
+    RUSTFLAGS: -D warnings
+    CARGO_TERM_COLOR: always
+
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                  components: rustfmt, clippy
+            - uses: Swatinem/rust-cache@720f7e45ccee46c12a7b1d7bed2ab733be9be5a1 # v2
+            - name: Lint (clippy)
+              run: cargo clippy --all-features --all-targets
+            - name: Lint (rustfmt)
+              run: cargo xfmt --check
+            - name: Check for differences
+              run: git diff --exit-code
+
+    build:
+        name: Build and test
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ubuntu-latest]
+                rust-version: [stable]
+            fail-fast: false
+        steps:
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+            - uses: dtolnay/rust-toolchain@master
+              with:
+                  toolchain: ${{ matrix.rust-version }}
+            - uses: Swatinem/rust-cache@720f7e45ccee46c12a7b1d7bed2ab733be9be5a1 # v2
+              with:
+                  key: ${{ matrix.rust-version }}
+            - run: cargo test --all-features --all-targets
